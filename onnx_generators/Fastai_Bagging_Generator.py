@@ -3,7 +3,6 @@ from os.path import isdir, isfile, join
 
 import numpy as np
 import onnx
-import onnxmltools
 import onnxruntime as ort
 import pandas as pd
 import torch
@@ -18,10 +17,10 @@ from onnxconverter_common.data_types import (DictionaryType, DoubleTensorType,
 from sclblonnx import (add_constant, add_input, add_node, add_output, concat,
                        display, empty_graph, join, merge, node, run, split)
 
-from Abstract_onnx_generator import Abstract_ONNX_Generator
-from operators import (argmax_operator, div_operator, mean_operator,
-                       softmax_operator, subtract_operator)
-from utils import FastAIModel, convert_dataframe_schema, model_dir_tools
+from .Abstract_onnx_generator import Abstract_ONNX_Generator
+from .operators import (argmax_operator, div_operator, mean_operator,
+                        softmax_operator, subtract_operator)
+from .utils import FastAIModel, convert_dataframe_schema, model_dir_tools
 
 
 class fastai_onnx_generator(Abstract_ONNX_Generator):

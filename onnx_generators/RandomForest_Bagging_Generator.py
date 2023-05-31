@@ -11,16 +11,16 @@ from onnxconverter_common.data_types import (DictionaryType, DoubleTensorType,
                                              FloatTensorType, Int64TensorType)
 from skl2onnx import convert_sklearn
 
-from Abstract_onnx_generator import Abstract_ONNX_Generator
+from .Abstract_onnx_generator import Abstract_ONNX_Generator
 
 
-class RandomForest_Gini_BAG(Abstract_ONNX_Generator):
+class RandomForest_Bagging_Onnx(Abstract_ONNX_Generator):
     def __init__(self, model_dir) -> None:
         super().__init__(model_dir)
         self.initial_types = self.get_initial_types(self.input_format)
         self.child_to_onnx()
 
-    def child_to_onnx(self):
+    def transform(self):
          if self.children:
             for i in range(len(self.children)):
                 self.onnx_model = convert_sklearn(self.children[i].model, initial_types=self.initial_types, options={type(self.children[i]): {'zipmap':False}})
@@ -46,7 +46,7 @@ class RandomForest_Gini_BAG(Abstract_ONNX_Generator):
 
 if __name__ == "__main__":
     model_dir = r'E:\Bagging2onnx\AutogluonOnnxGenerator_1.0\autogluon_NF_first_cls\models\RandomForestEntr_BAG_L1'
-    model = RandomForest_Gini_BAG(model_dir=model_dir)
+    model = RandomForest_Bagging_Onnx(model_dir=model_dir)
     df = pd.read_csv(r'E:\NF\NF_onnx_input.csv')
     df = df[['now_1', 'predict_1', 'previous_1', 'correction_1', 'now_2',
        'predict_2', 'previous_2', 'correction_2','now_predict_sub_1', 'now_previous_sub_1',

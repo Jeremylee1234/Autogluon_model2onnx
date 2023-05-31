@@ -7,7 +7,7 @@ import sclblonnx as so
 from mlinsights.mltree import digitize2tree
 from skl2onnx import to_onnx
 
-from quantile_transformer_operators import np_interp_graph
+from .quantile_transformer_operators import np_interp_graph
 
 
 class quantile_transformer_onnx_generator():

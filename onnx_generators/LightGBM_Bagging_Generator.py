@@ -10,13 +10,13 @@ from onnxconverter_common.data_types import (DictionaryType, DoubleTensorType,
                                              FloatTensorType, Int64TensorType)
 from skl2onnx import convert_sklearn
 
-from Abstract_onnx_generator import Abstract_ONNX_Generator
-from operators import (argmax_operator, mean_operator, softmax_operator,
+from .Abstract_onnx_generator import Abstract_ONNX_Generator
+from .operators import (argmax_operator, mean_operator, softmax_operator,
                        subtract_operator)
-from utils import model_dir_tools
+from .utils import model_dir_tools
 
 
-class LightGBM_bagging_onnx_generator(Abstract_ONNX_Generator):
+class LightGBM_Bagging_onnx_generator(Abstract_ONNX_Generator):
 
     def __init__(self, model_dir) -> None:
         super().__init__(model_dir)
@@ -75,14 +75,20 @@ class LightGBM_bagging_onnx_generator(Abstract_ONNX_Generator):
         merged_model = super().merge_graphs(merged_model = merged_model, onnx_models = self.onnx_models)
         operators = self.making_nodes(5)
         merged_model.graph.node.extend(operators)
-        output = onnx.helper.make_tensor_value_info("final_output", 7, [1])
+        if self.problem_type == 'regression':
+            output = onnx.helper.make_tensor_value_info("result", 1, [1])
+        else:
+            output = onnx.helper.make_tensor_value_info("final_output", 7, [1])
         merged_model.graph.output.extend([output])
         merged_model.opset_import[0].version = 17
         return merged_model
     
-    @staticmethod
-    def making_nodes(num_of_children):
-        operators = [mean_operator(output_name='result', inputs_name='probabilities',num_of_children = num_of_children), argmax_operator(output_name='final_output', inputs_name='result')]
+    def making_nodes(self,num_of_children):
+        if self.problem_type == 'regression':
+            operators = [mean_operator(output_name='result', inputs_name='variable',num_of_children = num_of_children)]
+        else:
+            operators = [mean_operator(output_name='result', inputs_name='probabilities',num_of_children = num_of_children), 
+                        argmax_operator(output_name='final_output', inputs_name='result')]
         return operators
     
 
@@ -106,7 +112,7 @@ class LightGBM_bagging_onnx_generator(Abstract_ONNX_Generator):
         return res
 
 if __name__ == "__main__":
-    model_dir = r'E:\Bagging2onnx\Autogluon2onnx\autogluon_USRS_first_cls\models\LightGBMLarge_BAG_L1'
+    model_dir = r'E:\Bagging2onnx\AutogluonOnnxGenerator_1.0\autogluon_USCPI_reg\models\LightGBMLarge_BAG_L1'
     model = LightGBM_bagging_onnx_generator(model_dir=model_dir)
     # test = np.random.rand(1,15).astype(np.float32)
     model.transform()

@@ -1,25 +1,18 @@
 import os
-from os.path import isdir, isfile, join
 
 import numpy as np
 import onnx
 import onnxmltools
 import onnxruntime as ort
 import pandas as pd
-import torch
 from autogluon.tabular import TabularPredictor
-from onnxconverter_common.data_types import (DictionaryType, DoubleTensorType,
-                                             FloatTensorType, Int64TensorType)
-from sclblonnx import (add_constant, add_input, add_node, add_output, concat,
-                       display, empty_graph, join, merge, node, run, split)
-from skl2onnx import convert_sklearn
+from onnxconverter_common.data_types import FloatTensorType
 
-from Abstract_onnx_generator import Abstract_ONNX_Generator
-from operators import argmax_operator, mean_operator, softmax_operator
-from utils import NeuralTorchModel, convert_dataframe_schema, model_dir_tools
+from .Abstract_onnx_generator import Abstract_ONNX_Generator
+from .operators import argmax_operator, mean_operator
 
 
-class XGboost_bagging_onnx(Abstract_ONNX_Generator):
+class XGboost_bagging_onnx_generator(Abstract_ONNX_Generator):
     
     def __init__(self, model_dir):
         super().__init__(model_dir)

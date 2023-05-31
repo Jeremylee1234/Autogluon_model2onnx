@@ -15,10 +15,10 @@ from sclblonnx import (add_constant, add_input, add_node, add_output, concat,
 from skl2onnx import convert_sklearn
 from sklearn.compose import ColumnTransformer
 
-from Abstract_onnx_generator import Abstract_ONNX_Generator
-from operators import argmax_operator, mean_operator, softmax_operator
-from quantile_transformer import quantile_transformer_onnx_generator
-from utils import NeuralTorchModel, convert_dataframe_schema, model_dir_tools
+from .Abstract_onnx_generator import Abstract_ONNX_Generator
+from .operators import argmax_operator, mean_operator, softmax_operator
+from .quantile_transformer import quantile_transformer_onnx_generator
+from .utils import NeuralTorchModel, convert_dataframe_schema, model_dir_tools
 
 
 class NeuralTorch_BAG_onnx_generator(Abstract_ONNX_Generator):
@@ -159,6 +159,9 @@ class NeuralTorch_BAG_onnx_generator(Abstract_ONNX_Generator):
     
     @property
     def merge_final_graphs(self):
+        """
+        合并子模型的onnx图
+        """
         self.concat_processor_torch_model
         self.rename_child_onnx_graph
         mean_op = onnx.helper.make_node('Mean',
@@ -179,12 +182,15 @@ class NeuralTorch_BAG_onnx_generator(Abstract_ONNX_Generator):
         output = onnx.helper.make_tensor_value_info("final_result", 7, [1])
         merged_graph.output.extend([output])
         merged_model = onnx.helper.make_model(merged_graph, producer_name='ZhengLi')
-        with open (r'final_graph.onnx','wb') as f:
-            f.write(merged_model.SerializeToString())
+        return merged_model
+    
+    def transform(self):
+        self.merged_onnx_model = self.final_graphs
+        self.save(self.merged_onnx_model)
 
 if __name__ == '__main__':
-    data = np.random.rand(1,28)
-    model_dir = r'E:\Bagging2onnx\AutogluonOnnxGenerator_1.0\autogluon_USCPI_first_cls\models\NeuralNetTorch_BAG_L1'
+    data = np.random.rand(1,8).astype(np.float32)
+    model_dir = r'E:\Bagging2onnx\AutogluonOnnxGenerator_1.0\autogluon_USCPI_reg\models\NeuralNetTorch_BAG_L1'
     model = NeuralTorch_BAG_onnx_generator(model_dir)
     model.merge_final_graphs
     

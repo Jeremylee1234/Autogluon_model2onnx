@@ -13,12 +13,12 @@ from onnx.helper import (make_graph, make_model, make_node, make_opsetid,
 from onnxconverter_common.data_types import (DictionaryType, DoubleTensorType,
                                              FloatTensorType, Int64TensorType)
 
-from Abstract_onnx_generator import Abstract_ONNX_Generator
-from operators import (add_operator, argmax_operator, mean_operator,
+from .Abstract_onnx_generator import Abstract_ONNX_Generator
+from .operators import (add_operator, argmax_operator, mean_operator,
                        mul_operator)
 
 
-class Weighted_ensemble_onnx(Abstract_ONNX_Generator):
+class Weighted_ensemble_onnx_generator(Abstract_ONNX_Generator):
     '''
     weighted_ensemble模型转onnx
 

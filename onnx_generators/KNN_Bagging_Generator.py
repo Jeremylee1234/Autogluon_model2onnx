@@ -9,10 +9,10 @@ from onnxconverter_common.data_types import (DictionaryType, DoubleTensorType,
                                              FloatTensorType, Int64TensorType)
 from skl2onnx import convert_sklearn
 
-from Abstract_onnx_generator import Abstract_ONNX_Generator
-from operators import (argmax_operator, mean_operator, softmax_operator,
+from .Abstract_onnx_generator import Abstract_ONNX_Generator
+from .operators import (argmax_operator, mean_operator, softmax_operator,
                        subtract_operator)
-from utils import model_dir_tools
+from .utils import model_dir_tools
 
 
 class KNN_bagging_onnx_generator(Abstract_ONNX_Generator):

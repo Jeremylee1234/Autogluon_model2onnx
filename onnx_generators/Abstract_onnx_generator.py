@@ -19,8 +19,8 @@ from onnxconverter_common.data_types import (DictionaryType, DoubleTensorType,
                                              FloatTensorType, Int64TensorType)
 from skl2onnx import convert_sklearn
 
-from operators import argmax_operator, mean_operator, softmax_operator
-from utils import model_dir_tools
+from .operators import argmax_operator, mean_operator, softmax_operator
+from .utils import model_dir_tools
 
 
 def get_args():
@@ -45,6 +45,7 @@ class Abstract_ONNX_Generator():
 
         self.bagged_model_path, self.children_path = model_dir_tools(model_dir)
         self.bagged_model = self.load_model(self.bagged_model_path)
+        self.problem_type = self.bagged_model.problem_type
         self.children = [self.bagged_model.load_child(child) for child in self.bagged_model.models]
         self.input_format = list(self.bagged_model.feature_metadata.get_type_group_map_raw().items())
     
@@ -68,8 +69,8 @@ class Abstract_ONNX_Generator():
                     model_list.append(pickle.load(f)) 
             return model_list
     
-    @staticmethod
-    def load_onnx_models(children_path):
+
+    def load_onnx_models(self,children_path):
         """
         This function is used to load the onnx models.
         """
@@ -100,55 +101,9 @@ class Abstract_ONNX_Generator():
                     for k in range(len(nodes[j].output)):
                         nodes[j].output[k] = nodes[j].output[k] + str(i)
         return onnx_models
-    # def save_child_onnx(self,batch_size = None):
-    #     """
-    #     This function is used to save the onnx models.
-    #     """
-    #     if self.children:
-    #         if isinstance(self.children[0].model,lgbmBooster):
-    #             self.child_type = lgbmBooster
-    #             for i in range(len(self.children)):
-    #                 onnx_model = onnxmltools.convert_lightgbm(self.children[i].model, initial_types= self.initial_types,target_opset=15,zipmap=False)
-    #                 export_path = join(os.path.dirname(self.children_path[i]),'onnx_model.onnx')
-    #                 with open (export_path,'wb') as f:
-    #                     f.write(onnx_model.SerializeToString())
-    #         #TODO: For NeuralTorch model, there is a sklearn ColumnTransformer 
-    #         # data processing in the predict method, and one of it's pipeline contains a QuantileTransformer which not available to convert to onnx. 
-    #         # elif isinstance(self.children[0].model,EmbedNet):
-    #             # self.child_type = EmbedNet
-    #             # model_input_sample = {
-    #             #    'data_batch': {'vector': torch.zeros(size=(batch_size, feature_dim), dtype=torch_type)}}
-    #             # for i in range(len(self.children)):
-    #             #     export_path = join(os.path.dirname(self.children_path[i]),'onnx_model.onnx')
-    #             #     torch.onnx.export(self.children[i],
-    #             #     args=model_input_sample,
-    #             #     f='torch_nn.onnx',
-    #             #     opset_version=15,
-    #             #     do_constant_folding=True,
-    #             #     )
-    # def rename_node_name(self):
-    #     """
-    #     This function is used to rename the node name of onnx models.
-    #     """
-    #     for i in range(len(self.onnx_models)):
-    #         graph = self.onnx_models[i].graph
-    #         for initializer in graph.initializer:
-    #             initializer.name = initializer.name + str(i)
-    #         for z in range(len(graph.output)):
-    #             graph.output[z].name = graph.output[z].name + str(i)
-    #         nodes = graph.node
-    #         for j in range(len(nodes)):
-    #             nodes[j].name = nodes[j].name + str(i)
-    #             if j == 0:
-    #                 for k in range(len(nodes[j].output)):
-    #                     nodes[j].output[k] = nodes[j].output[k] + str(i)
-    #             else:
-    #                 for k in range(len(nodes[j].input)):
-    #                     nodes[j].input[k] = nodes[j].input[k] + str(i)
-    #                 for k in range(len(nodes[j].output)):
-    #                     nodes[j].output[k] = nodes[j].output[k] + str(i)
-    @staticmethod
-    def merge_graphs(merged_model,onnx_models):
+   
+
+    def merge_graphs(self,merged_model,onnx_models):
         """
         This function is used to merge the onnx models.
         """
